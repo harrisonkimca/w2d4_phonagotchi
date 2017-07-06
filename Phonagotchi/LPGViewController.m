@@ -184,11 +184,13 @@
 
 - (IBAction)respondToPan:(UIPanGestureRecognizer*)sender
 {
+    // when state changes check gesture speed and send to petMe
     if (sender.state == UIGestureRecognizerStateChanged)
     {
         CGPoint velocity = [self.petting velocityInView:self.petImageView];
         [self.myPet petMe:velocity];
     }
+    // return to default when gesture ends
     if (sender.state == UIGestureRecognizerStateEnded)
     {
         [NSTimer scheduledTimerWithTimeInterval:1.0
@@ -196,11 +198,12 @@
                                        selector:@selector(setCurrentPetImageDelayed:)
                                        userInfo:@"default.png" repeats:NO];
     }
+    // use grumpy image when grumpy
     if (self.myPet.isGrumpy)
     {
         [self setCurrentPetImage:@"grumpy.png"];
     }
-    
+    // redraw image
     [self.petImageView setNeedsDisplay];
 }
 
@@ -209,6 +212,7 @@
     float frameWidth = self.foodImageView.frame.size.width;
     float frameHeight = self.foodImageView.frame.size.height;
     
+    // when state changes and gesture recognized then pick up food
     if (sender.state == UIGestureRecognizerStateChanged && sender.velocity > 0)
     {
         CGPoint centerOfFood = [sender locationInView:nil];
