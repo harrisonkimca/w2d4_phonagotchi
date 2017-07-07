@@ -25,6 +25,11 @@
 
 @implementation LPGViewController
 
+{
+    NSDate *startTime;
+    NSDate *endTime;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -164,7 +169,6 @@
     // add petting gesture to viewDidLoad
     self.feeding = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(respondToPinch:)];
     [self.view addGestureRecognizer:self.feeding];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -189,22 +193,33 @@
     {
         CGPoint velocity = [self.petting velocityInView:self.petImageView];
         [self.myPet petMe:velocity];
+        
+        [NSTimer scheduledTimerWithTimeInterval:1.0
+                                         target:self
+                                       selector:@selector(substractRestfulness)
+                                       userInfo:nil
+                                        repeats:YES];
     }
-    // return to default when gesture ends
+    // return to default when gesture ends (delayed)
     if (sender.state == UIGestureRecognizerStateEnded)
     {
         [NSTimer scheduledTimerWithTimeInterval:1.0
                                          target:self
                                        selector:@selector(setCurrentPetImageDelayed:)
-                                       userInfo:@"default.png" repeats:NO];
+                                       userInfo:@"default.png"
+                                        repeats:NO];
+        
+        [NSTimer scheduledTimerWithTimeInterval:1.0
+                                         target:self
+                                       selector:@selector(addRestfulness)
+                                       userInfo:nil
+                                        repeats:YES];
     }
     // use grumpy image when grumpy
     if (self.myPet.isGrumpy)
     {
         [self setCurrentPetImage:@"grumpy.png"];
     }
-    // redraw image
-    [self.petImageView setNeedsDisplay];
 }
 
 - (IBAction)respondToPinch:(UIPinchGestureRecognizer*)sender
@@ -263,5 +278,14 @@
     self.petImageView.image = [UIImage imageNamed:self.myPet.currentImageName];
 }
 
+- (void)substractRestfulness
+{
+    self.myPet.restfulness --;
+}
+
+- (void)addRestfulness
+{
+    self.myPet.restfulness ++;
+}
 
 @end

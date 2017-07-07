@@ -11,6 +11,7 @@
 @interface LPGPet()
 
 @property (nonatomic, readwrite) BOOL isGrumpy;
+@property (nonatomic, readwrite) BOOL isSleeping;
 
 @end
 
@@ -22,6 +23,7 @@
     if (self) {
         _currentImageName = image;
         _isGrumpy = NO;
+        _isSleeping = YES;
     }
     return self;
 }
@@ -37,5 +39,19 @@
         self.isGrumpy = NO;
     }
 }
+
+- (void)snoozeMe
+{
+    if (self.restfulness > 10)
+    {
+        self.isSleeping = YES;
+        self.restfulness = 0;
+    }
+    else
+    {
+        self.isSleeping = NO;
+    }
+}
+
 
 @end

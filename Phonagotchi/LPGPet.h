@@ -11,10 +11,12 @@
 @interface LPGPet : NSObject
 
 @property (nonatomic, readonly) BOOL isGrumpy;
+@property (nonatomic, readonly) BOOL isSleeping;
 @property (strong, nonatomic) NSString *currentImageName;
+@property (nonatomic) NSTimeInterval restfulness;
 
 - (instancetype)initWithImage:(NSString*)image;
 - (void)petMe:(CGPoint)velocity;
-
+- (void)snoozeMe;
 
 @end
