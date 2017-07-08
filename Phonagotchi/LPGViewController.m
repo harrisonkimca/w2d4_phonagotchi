@@ -20,15 +20,14 @@
 @property (strong, nonatomic) UIPanGestureRecognizer *petting;
 @property (strong, nonatomic) UIPinchGestureRecognizer *feeding;
 @property (nonatomic) CGRect startingFoodPosition;
+@property (strong, nonatomic) NSTimer *restfulnessTimer;
+@property (strong, nonatomic) NSTimer *activenessTimer;
+
 
 @end
 
 @implementation LPGViewController
 
-{
-    NSDate *startTime;
-    NSDate *endTime;
-}
 
 - (void)viewDidLoad
 {
@@ -38,6 +37,8 @@
     
     [self initializePet];
     [self initializeFood];
+    // start 'restfulness' timer
+    [self initializeRestfulness];
     
     self.petImageView = [[UIImageView alloc] initWithFrame:CGRectZero];
     self.petImageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -186,19 +187,41 @@
     self.myFood = [[LPGFood alloc]initWithImage:@"apple.png"];
 }
 
+- (void)initializeRestfulness
+{
+    if (!self.restfulnessTimer)
+    {
+        self.restfulnessTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                      target:self
+                                                    selector:@selector(restfulness:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+    }
+}
+
 - (IBAction)respondToPan:(UIPanGestureRecognizer*)sender
 {
-    // when state changes check gesture speed and send to petMe
+    // start activenessTimer when gesture begins
+    if (sender.state == UIGestureRecognizerStateBegan)
+    {
+        if (!self.activenessTimer)
+        {
+            self.activenessTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                                    target:self
+                                                                  selector:@selector(activeness:)
+                                                                  userInfo:nil
+                                                                   repeats:YES];
+        }
+        [self.restfulnessTimer invalidate];
+        self.restfulnessTimer = nil;
+        
+    }
+    // when state changes check gesture speed and check Yes/No status on petMe & snoozeMe
     if (sender.state == UIGestureRecognizerStateChanged)
     {
         CGPoint velocity = [self.petting velocityInView:self.petImageView];
         [self.myPet petMe:velocity];
-        
-        [NSTimer scheduledTimerWithTimeInterval:1.0
-                                         target:self
-                                       selector:@selector(substractRestfulness)
-                                       userInfo:nil
-                                        repeats:YES];
+        [self.myPet sleepMe];
     }
     // return to default when gesture ends (delayed)
     if (sender.state == UIGestureRecognizerStateEnded)
@@ -209,16 +232,19 @@
                                        userInfo:@"default.png"
                                         repeats:NO];
         
-        [NSTimer scheduledTimerWithTimeInterval:1.0
-                                         target:self
-                                       selector:@selector(addRestfulness)
-                                       userInfo:nil
-                                        repeats:YES];
+        [self.activenessTimer invalidate];
+        self.activenessTimer = nil;
+        [self initializeRestfulness];
     }
     // use grumpy image when grumpy
     if (self.myPet.isGrumpy)
     {
         [self setCurrentPetImage:@"grumpy.png"];
+    }
+    // use sleeping image when restfulness goes to zero
+    if (self.myPet.isSleeping)
+    {
+        [self setCurrentPetImage:@"sleeping.png"];
     }
 }
 
@@ -278,14 +304,28 @@
     self.petImageView.image = [UIImage imageNamed:self.myPet.currentImageName];
 }
 
-- (void)substractRestfulness
-{
-    self.myPet.restfulness --;
-}
-
-- (void)addRestfulness
+- (void)restfulness:(NSTimer*)timer
 {
     self.myPet.restfulness ++;
+    int index = self.myPet.restfulness;
+    int count = index % 100;
+    NSLog(@"ADDrestfulness: %i", count);
+    
+    if (self.myPet.restfulness == 99)
+    {
+        [self.restfulnessTimer invalidate];
+        self.restfulnessTimer = nil;
+    }
 }
+
+- (void)activeness:(NSTimer*)timer
+{
+    self.myPet.restfulness -= 5;
+    int index = self.myPet.restfulness;
+    int count = index % 100;
+    NSLog(@"SUBTRACTrestfulness: %i", count);
+}
+
+
 
 @end

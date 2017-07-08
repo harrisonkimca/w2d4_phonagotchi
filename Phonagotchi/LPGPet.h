@@ -17,6 +17,6 @@
 
 - (instancetype)initWithImage:(NSString*)image;
 - (void)petMe:(CGPoint)velocity;
-- (void)snoozeMe;
+- (void)sleepMe;
 
 @end
